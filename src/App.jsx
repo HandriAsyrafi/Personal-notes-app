@@ -1,35 +1,130 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useMemo, useState } from "react";
+import { Route, Routes, useNavigate } from "react-router";
+import "./App.css";
+import HomePage from "./pages/HomePage";
+import RegisterPage from "./pages/RegisterPage";
+import LoginPage from "./pages/LoginPage";
+import NoteDetailPage from "./pages/NoteDetailPage";
+import ArchivedNotesPage from "./pages/ArchivedNotesPage";
+import LocalContext from "./contexts/LocalContext";
+import {
+  getAccessToken,
+  getUserLogged,
+  removeAccessToken,
+} from "./utils/network-data";
+import { Navigate } from "react-router";
+import Header from "./components/Header";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [locale, setLocal] = useState(localStorage.getItem("locale") || "en");
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    async function fetchUserLogged() {
+      const token = getAccessToken();
+      if (!token) {
+        setUser(null);
+        return;
+      }
+      const { error, data } = await getUserLogged();
+      if (!error) {
+        setUser(data);
+      }
+    }
+    fetchUserLogged();
+  }, []);
+
+  console.log(user);
+
+  const navigate = useNavigate();
+
+  function ProtectedUserLogin({ children }) {
+    const token = getAccessToken();
+    if (token) {
+      return <Navigate to="/" replace />;
+    }
+    return children;
+  }
+
+  function ProtectedUserNotLogin({ children }) {
+    const token = getAccessToken();
+    if (!token) {
+      return <Navigate to="/login" replace />;
+    }
+    return children;
+  }
+
+  const localContextValue = useMemo(() => {
+    const toggleLocale = () => {
+      setLocal((prevLocale) => (prevLocale === "id" ? "en" : "id"));
+      localStorage.setItem("locale", locale);
+    };
+
+    const toggleTheme = () => {
+      setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+      localStorage.setItem("theme", theme);
+    };
+    return {
+      locale,
+      toggleLocale,
+      theme,
+      toggleTheme,
+    };
+  }, [locale, theme]);
+
+  function handleLogout() {
+    removeAccessToken();
+    setUser(null);
+    navigate("/login");
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <LocalContext.Provider value={localContextValue}>
+        <header>
+          <Header onLogout={handleLogout} user={user} />
+        </header>
+        <main>
+          <Routes>
+            <Route
+              path="/login"
+              element={
+                <ProtectedUserLogin>
+                  <LoginPage setUser={setUser} />
+                </ProtectedUserLogin>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <ProtectedUserLogin>
+                  <RegisterPage />
+                </ProtectedUserLogin>
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <ProtectedUserNotLogin>
+                  <HomePage />
+                </ProtectedUserNotLogin>
+              }
+            />
+            <Route path="/notes/:id" element={<NoteDetailPage />} />
+            <Route
+              path="/archived"
+              element={
+                <ProtectedUserNotLogin>
+                  <ArchivedNotesPage />
+                </ProtectedUserNotLogin>
+              }
+            />
+          </Routes>
+        </main>
+      </LocalContext.Provider>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
