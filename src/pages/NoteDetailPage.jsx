@@ -46,30 +46,38 @@ export default function NoteDetailPage() {
   }
 
   return (
-    <div className="note-detail-container">
-      <h1 className="note-detail-title">{note.title}</h1>
-      <p className="note-detail-date">
-        {showFormattedDate({ date: note.createdAt })}
-      </p>
-      <p className="note-detail-body">{note.body}</p>
-      <button
-        onClick={
-          note.archived
-            ? () => handleUnarchive(note.id)
-            : () => handleArchive(note.id)
-        }
-      >
-        {note.archived
-          ? locale === "id"
-            ? "Batal Arsipkan"
-            : "Cancel"
-          : locale === "id"
-          ? "Arsipkan"
-          : "Archive"}
-      </button>
-      <button onClick={() => handleDelete(note.id)}>
-        {locale === "id" ? "Hapus" : "Delete"}
-      </button>
-    </div>
+    <>
+      <div className="note-detail-container">
+        <h1 className="note-detail-title">{note.title}</h1>
+        <p className="note-detail-date">
+          {showFormattedDate({ date: note.createdAt })}
+        </p>
+        <p className="note-detail-body">{note.body}</p>
+        <div className="note-item__action">
+          <button
+            onClick={
+              note.archived
+                ? () => handleUnarchive(note.id)
+                : () => handleArchive(note.id)
+            }
+            className="note-item__archive-button"
+          >
+            {note.archived
+              ? locale === "id"
+                ? "Batal Arsipkan"
+                : "Cancel"
+              : locale === "id"
+              ? "Arsipkan"
+              : "Archive"}
+          </button>
+          <button
+            onClick={() => handleDelete(note.id)}
+            className="note-item__delete-button"
+          >
+            {locale === "id" ? "Hapus" : "Delete"}
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
