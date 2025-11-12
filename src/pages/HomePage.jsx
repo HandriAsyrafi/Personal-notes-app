@@ -5,13 +5,16 @@ import NotesList from "../components/NotesList";
 
 export default function HomePage() {
   const [notes, setNotes] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     async function fetchActiveNotes() {
       const { error, data } = await getActiveNotes();
       if (!error) {
         setNotes(data);
       }
+      setLoading(false);
     }
     fetchActiveNotes();
   }, []);
@@ -19,7 +22,9 @@ export default function HomePage() {
   return (
     <>
       <NoteInput />
-      <NotesList notes={notes}>Active Notes</NotesList>
+      <NotesList notes={notes} loading={loading}>
+        Active Notes
+      </NotesList>
     </>
   );
 }

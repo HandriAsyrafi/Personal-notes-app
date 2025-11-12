@@ -41,7 +41,7 @@ export default function NoteInput() {
           onChange={handleChangeBody}
           className="note-input__body"
         />
-        <button>{locale === "id" ? "Tambah catatan" : "Add Note"}</button>
+        <button className="btn-addNote">{locale === "id" ? "Tambah catatan" : "Add Note"}</button>
       </form>
     </div>
   );

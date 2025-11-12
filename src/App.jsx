@@ -35,8 +35,6 @@ function App() {
     fetchUserLogged();
   }, []);
 
-  console.log(user);
-
   const navigate = useNavigate();
 
   function ProtectedUserLogin({ children }) {

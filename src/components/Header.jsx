@@ -16,18 +16,22 @@ export default function Header({ onLogout }) {
             Notes
           </Link>
         </h1>
-        <div>
+        <div className="note-app__header__btn">
           <Link to="/archived">
             {locale === "id" ? "Catatan Terarsip" : "Archived Notes"}
           </Link>
-          <button onClick={toggleLocale}>
+          <button onClick={toggleLocale} className="btn-locale">
             {locale === "id" ? "English" : "Indonesia"}
           </button>
-          <button onClick={toggleTheme}>
-            {theme === "light" ? <MdOutlineDarkMode /> : <MdOutlineLightMode />}
+          <button onClick={toggleTheme} className="btn-theme">
+            {theme === "light" ? (
+              <MdOutlineDarkMode size={10} color="white" />
+            ) : (
+              <MdOutlineLightMode size={10} color="yellow" />
+            )}
           </button>
           {getAccessToken() ? (
-            <button onClick={onLogout}>
+            <button onClick={onLogout} className="btn-logout">
               {locale === "id" ? "Keluar" : "Logout"}
             </button>
           ) : (
